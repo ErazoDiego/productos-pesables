@@ -11,6 +11,7 @@ class Sectores {
     'Verdulería',
     'Fiambrería',
     'Panadería',
+    'Pescadería',
     'Platos',
   ];
 }

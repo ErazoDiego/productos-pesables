@@ -61,6 +61,8 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
         return Icons.lunch_dining;
       case 'Panadería':
         return Icons.bakery_dining;
+      case 'Pescadería':
+        return Icons.set_meal;
       case 'Platos':
         return Icons.dinner_dining;
       default:
@@ -79,6 +81,8 @@ class _PantallaPrincipalState extends State<PantallaPrincipal> {
         return Colors.orange;
       case 'Panadería':
         return Colors.brown;
+      case 'Pescadería':
+        return Colors.cyan;
       case 'Platos':
         return Colors.blue;
       default:
