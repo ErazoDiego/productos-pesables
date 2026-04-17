@@ -38,7 +38,7 @@ class ExportacionService {
   Future<void> compartirArchivo(String rutaArchivo) async {
     await Share.shareXFiles(
       [XFile(rutaArchivo)],
-      text: 'Backup de Productos Pesables',
+      text: 'Backup de Códigos de Balanza',
     );
   }
 

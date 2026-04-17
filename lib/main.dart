@@ -11,7 +11,7 @@ class ProductosPesablesApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Productos Pesables',
+      title: 'Códigos de Balanza',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
