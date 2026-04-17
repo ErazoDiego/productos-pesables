@@ -1,5 +1,12 @@
+// ============================================================
+// Widgets: Diálogos y notificaciones
+// Descripción: Funciones reutilizables para mostrar mensajes
+// ============================================================
+
 import 'package:flutter/material.dart';
 
+// Muestra un diálogo de confirmación con dos opciones
+// Retorna true si el usuario confirma, false si cancela
 Future<bool> mostrarDialogoConfirmacion(
   BuildContext context, {
   required String titulo,
@@ -26,6 +33,8 @@ Future<bool> mostrarDialogoConfirmacion(
   return resultado ?? false;
 }
 
+// Muestra una barra de notificación en la parte inferior
+// Si esError=true muestra color rojo, sino verde
 void mostrarSnackBar(BuildContext context, String mensaje, {bool esError = false}) {
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

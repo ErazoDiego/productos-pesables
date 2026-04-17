@@ -1,3 +1,9 @@
+// ============================================================
+// Pantalla: DetalleSectorScreen
+// Descripción: Muestra la lista de productos de un sector
+//              específico con buscador y opción de eliminar
+// ============================================================
+
 import 'package:flutter/material.dart';
 import '../models/producto.dart';
 import '../services/almacenamiento_service.dart';
@@ -5,9 +11,10 @@ import '../widgets/producto_item.dart';
 import '../widgets/dialogos.dart';
 import 'agregar_producto_screen.dart';
 
+// Pantalla que lista los productos de un sector
 class DetalleSectorScreen extends StatefulWidget {
-  final String sector;
-  final Color color;
+  final String sector; // Sector a mostrar
+  final Color color;    // Color del sector (para la barra)
 
   const DetalleSectorScreen({
     super.key,
@@ -23,34 +30,41 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
   final AlmacenamientoService _almacenamiento = AlmacenamientoService();
   final TextEditingController _controladorBusqueda = TextEditingController();
 
-  List<Producto> _productos = [];
-  List<Producto> _productosFiltrados = [];
+  List<Producto> _productos = [];          // Todos los productos del sector
+  List<Producto> _productosFiltrados = []; // Productos filtrados por búsqueda
   bool _cargando = true;
 
+  // Se ejecuta al iniciar
   @override
   void initState() {
     super.initState();
     _cargarProductos();
+    // Filtra cuando el usuario escribe en el buscador
     _controladorBusqueda.addListener(_filtrarProductos);
   }
 
+  // Limpia el controlador al cerrar
   @override
   void dispose() {
     _controladorBusqueda.dispose();
     super.dispose();
   }
 
+  // Carga los productos del sector desde el almacenamiento
   Future<void> _cargarProductos() async {
     setState(() => _cargando = true);
     final todosProductos = await _almacenamiento.obtenerProductos();
     setState(() {
+      // Filtra solo los productos de este sector
       _productos = todosProductos.where((p) => p.sector == widget.sector).toList();
+      // Ordena alfabéticamente por nombre
       _productos.sort((a, b) => a.nombre.compareTo(b.nombre));
       _productosFiltrados = _productos;
       _cargando = false;
     });
   }
 
+  // Filtra productos por nombre o código pesable
   void _filtrarProductos() {
     final texto = _controladorBusqueda.text.toLowerCase();
     setState(() {
@@ -61,6 +75,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
     });
   }
 
+  // Elimina un producto individual
   Future<void> _eliminarProducto(Producto producto) async {
     final confirmacion = await mostrarDialogoConfirmacion(
       context,
@@ -75,12 +90,13 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
         _filtrarProductos();
         if (mounted) {
           mostrarSnackBar(context, 'Producto eliminado');
-          Navigator.pop(context, true);
+          Navigator.pop(context, true); // Vuelve a la pantalla anterior
         }
       }
     }
   }
 
+  // Elimina todos los productos del sector
   Future<void> _eliminarTodos() async {
     if (_productos.isEmpty) return;
 
@@ -91,6 +107,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
     );
 
     if (confirmacion) {
+      // Elimina cada producto
       for (final producto in _productos) {
         await _almacenamiento.eliminarProducto(producto);
       }
@@ -102,6 +119,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
     }
   }
 
+  // Navega a la pantalla de agregar producto (sector preseleccionado)
   void _navegarAAgregar() async {
     final resultado = await Navigator.push(
       context,
@@ -119,13 +137,16 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
     }
   }
 
+  // Construye la interfaz
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Barra con el nombre del sector
       appBar: AppBar(
         title: Text(widget.sector),
         backgroundColor: widget.color,
         foregroundColor: Colors.white,
+        // Botón para eliminar todos (si hay productos)
         actions: [
           if (_productos.isNotEmpty)
             IconButton(
@@ -137,6 +158,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
       ),
       body: Column(
         children: [
+          // Campo de búsqueda
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -152,6 +174,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
               ),
             ),
           ),
+          // Lista de productos
           Expanded(
             child: _cargando
                 ? const Center(child: CircularProgressIndicator())
@@ -170,6 +193,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
           ),
         ],
       ),
+      // Botón flotante para agregar producto
       floatingActionButton: FloatingActionButton(
         backgroundColor: widget.color,
         onPressed: _navegarAAgregar,
@@ -178,6 +202,7 @@ class _DetalleSectorScreenState extends State<DetalleSectorScreen> {
     );
   }
 
+  // Muestra mensaje cuando no hay productos
   Widget _mostrarEstadoVacio() {
     return Center(
       child: Column(

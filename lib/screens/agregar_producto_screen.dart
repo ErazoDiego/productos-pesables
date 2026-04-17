@@ -1,3 +1,9 @@
+// ============================================================
+// Pantalla: AgregarProductoScreen
+// Descripción: Formulario para agregar un nuevo producto
+//              con validación de campos obligatorios
+// ============================================================
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../models/producto.dart';
@@ -5,7 +11,9 @@ import '../services/almacenamiento_service.dart';
 import '../constants/sectores.dart';
 import '../widgets/dialogos.dart';
 
+// Pantalla de formulario para agregar productos
 class AgregarProductoScreen extends StatefulWidget {
+  // Si viene de un sector, ya lo preselecciona
   final String? sectorPreseleccionado;
 
   const AgregarProductoScreen({super.key, this.sectorPreseleccionado});
@@ -21,14 +29,16 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
 
   final AlmacenamientoService _almacenamiento = AlmacenamientoService();
   String? _sectorSeleccionado;
-  bool _guardando = false;
+  bool _guardando = false; // Para mostrar indicador de carga
 
+  // Inicializa con el sector preseleccionado si viene de un sector
   @override
   void initState() {
     super.initState();
     _sectorSeleccionado = widget.sectorPreseleccionado;
   }
 
+  // Limpia los controladores al cerrar
   @override
   void dispose() {
     _controladorNombre.dispose();
@@ -36,6 +46,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
     super.dispose();
   }
 
+  // Valida que el nombre no esté vacío
   String? _validarNombre(String? valor) {
     if (valor == null || valor.trim().isEmpty) {
       return 'El nombre no puede estar vacío';
@@ -43,6 +54,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
     return null;
   }
 
+  // Valida que se haya seleccionado un sector
   String? _validarSector(String? valor) {
     if (valor == null || valor.isEmpty) {
       return 'Selecciona un sector';
@@ -50,29 +62,35 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
     return null;
   }
 
+  // Valida el código pesable: no vacío y solo números
   String? _validarCodigo(String? valor) {
     if (valor == null || valor.trim().isEmpty) {
       return 'El código no puede estar vacío';
     }
+    // Verifica que solo contenga dígitos
     if (!RegExp(r'^\d+$').hasMatch(valor)) {
       return 'Solo números permitidos';
     }
     return null;
   }
 
+  // Guarda el producto en el almacenamiento
   Future<void> _guardarProducto() async {
+    // Valida el formulario antes de guardar
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
     setState(() => _guardando = true);
 
+    // Crea el objeto producto
     final producto = Producto(
       nombre: _controladorNombre.text.trim(),
       sector: _sectorSeleccionado!,
       codigoPesable: _controladorCodigo.text.trim(),
     );
 
+    // Intenta guardar (evita duplicados automáticamente)
     final exitoso = await _almacenamiento.agregarProducto(producto);
 
     setState(() => _guardando = false);
@@ -81,7 +99,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
 
     if (exitoso) {
       mostrarSnackBar(context, 'Producto guardado correctamente');
-      Navigator.pop(context, true);
+      Navigator.pop(context, true); // Vuelve indicando éxito
     } else {
       mostrarSnackBar(
         context,
@@ -91,6 +109,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
     }
   }
 
+  // Construye el formulario
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +125,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Campo: Nombre del producto
               TextFormField(
                 controller: _controladorNombre,
                 decoration: InputDecoration(
@@ -115,10 +135,13 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                   ),
                   prefixIcon: const Icon(Icons.label_outline),
                 ),
+                // Capitaliza cada palabra
                 textCapitalization: TextCapitalization.words,
                 validator: _validarNombre,
               ),
               const SizedBox(height: 20),
+              
+              // Campo: Sector (dropdown)
               DropdownButtonFormField<String>(
                 value: _sectorSeleccionado,
                 decoration: InputDecoration(
@@ -128,6 +151,7 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                   ),
                   prefixIcon: const Icon(Icons.category_outlined),
                 ),
+                // Lista de sectores fijos
                 items: Sectores.lista.map((sector) {
                   return DropdownMenuItem(
                     value: sector,
@@ -140,6 +164,8 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                 validator: _validarSector,
               ),
               const SizedBox(height: 20),
+              
+              // Campo: Código pesable (solo números)
               TextFormField(
                 controller: _controladorCodigo,
                 decoration: InputDecoration(
@@ -149,13 +175,17 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                   ),
                   prefixIcon: const Icon(Icons.numbers),
                 ),
+                // Teclado numérico
                 keyboardType: TextInputType.number,
+                // Solo permite dígitos
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
                 ],
                 validator: _validarCodigo,
               ),
               const SizedBox(height: 32),
+              
+              // Botón: Guardar
               ElevatedButton(
                 onPressed: _guardando ? null : _guardarProducto,
                 style: ElevatedButton.styleFrom(
@@ -176,6 +206,8 @@ class _AgregarProductoScreenState extends State<AgregarProductoScreen> {
                       ),
               ),
               const SizedBox(height: 12),
+              
+              // Botón: Cancelar
               OutlinedButton(
                 onPressed: () => Navigator.pop(context),
                 style: OutlinedButton.styleFrom(
